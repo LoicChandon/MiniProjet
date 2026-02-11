@@ -1,15 +1,22 @@
 package pharmacie.dao;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import pharmacie.entity.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import pharmacie.entity.Categorie;
+import pharmacie.entity.Commande;
+import pharmacie.entity.Dispensaire;
+import pharmacie.entity.Ligne;
+import pharmacie.entity.Medicament;
 
 @DataJpaTest
 class RepositoryCustomMethodsTest {
