@@ -1,7 +1,6 @@
 package pharmacie.entity;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -88,11 +87,5 @@ public class Medicament {
 	@JsonIgnore // On n'inclut pas les lignes quand on convertit le médicament en JSON
 	@OneToMany(mappedBy = "medicament", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 	private List<Ligne> lignes = new LinkedList<>();
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "medicament")
-    @ToString.Exclude
-    private List<Fournisseur> fournisseurs = new ArrayList<>();
-
-
 
 }

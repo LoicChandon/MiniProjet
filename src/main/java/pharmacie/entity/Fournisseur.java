@@ -45,7 +45,7 @@ public class Fournisseur {
     @Column(length = 30)
     private String adresseElectronique;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fournisseur")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fournisseurs")
     @ToString.Exclude
     private List<Categorie> categories = new ArrayList<>();
 
