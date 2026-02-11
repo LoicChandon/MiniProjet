@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CORS - Gestion Pharmaceutique</title>
+    <style>
+        /* Modern layout styles inspired by TestCORS.html */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ul {
+            color: #555;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        tr:nth-child(even){background-color: #f2f2f2;}
+
+        tr:hover {background-color: #ddd;}
+
+        th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .column{
+            width:50%;
+            float:left;
+            padding: 5px;
+            box-sizing:border-box;
+        }
+
+        /*clear-fix the parent of column because it collapsed!  */
+        form:after{
+            content:'';
+            display:block;
+            clear:both;
+        }
+
+        /* FORM STUFF BEGINS HERE */
+        form{
+            font-size:110%
+        }
+
+        label{
+            display:block;
+            color:saddlebrown;
+            margin: 5px 0 3px;
+        }
+
+        fieldset label{
+            display:inline-block;
+            font-size:85%;
+            font-family: Calibri, sans-serif;
+        }
+
+
+        input[type=text],
+        input[type=email],
+        input[type=tel],
+        textarea,
+        select{
+            width:50%;
+            padding:10px;
+            box-sizing:border-box;
+            background-color: #f2f2f2;
+            border: solid 1px tan;
+        }
+
+        textarea{
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        fieldset{
+            border:none;
+            margin:20px 0 ;
+            padding:10px 0;
+            border-bottom: 1px solid tan;
+        }
+
+        legend{
+            color:white;
+            background-color:tan;
+            display:block;
+            width:100%;
+            padding:3px;
+        }
+
+        input[type=checkbox]{
+            background-color:red;
+            border: solid 1px red;
+            color:red;
+            outline:red;
+        }
+
+        /* BUTTONS */
+        input[type=submit]{
+            padding-top:12px;
+            padding-bottom:12px;
+            padding-left:12px;
+            padding-right:12px;
+            border-radius:10px;
+            text-align:left;
+            background-color: #4CAF50;
+            color: white;
+            border:none;
+        }
+        /* Reset Button: minimize the appearance */
+        input[type=reset]{
+            background-color:transparent;
+            border:none;
+            text-decoration:underline;
+            cursor:pointer;
+            margin:20px 0;
+            color:olive;
+        }
+
+        /* hovers and tabs */
+        input[type=text]:hover,
+        input[type=email]:hover{
+            background-color:khaki;
+        }
+        input[type=text]:focus,
+        input[type=email]:focus{
+            outline: 2px solid tan;
+        }
+        input[type=sumbit]:hover,
+        input[type=submit]:focus{
+            background-color:limegreen;
+        }
+
+        /* Modern button styles */
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Card styles */
+        .test-card {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        /* Result display */
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success {
+            border-left: 4px solid #27ae60;
+            background: #d4edda;
+        }
+
+        .error {
+            border-left: 4px solid #e74c3c;
+            background: #f8d7da;
+        }
+
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Headers display */
+        .headers-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Code elements */
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 90%;
+            color: #e83e8c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+
+        <h1>🌐 Test de Configuration CORS</h1>
+        <p class="subtitle">Vérification de Cross-Origin Resource Sharing</p>
+
+        <div class="info">
+            <h4>ℹ️ À propos de ce test</h4>
+            <p>Cette page teste la configuration CORS de l'API. Si vous voyez des résultats sans erreurs CORS,
+            c'est que la configuration fonctionne correctement.</p>
+            <p><strong>Note:</strong> Cette page est chargée depuis <code><span id="current-origin"></span></code> et fait des appels AJAX sur <code><span id="current-destination"></span></code>.
+            Pour tester un vrai scénario cross-origin, vous devez tester depuis deux serveurs ou domaines différents. Vous pouvez aussi simplement enregistrer cette page sur votre ordinateur et ouvrir la copie dans votre navigateur (<code>file://...)</code></p>
+        </div>
+
+        <!-- Test 1: API JPA -->
+        <div class="test-card">
+            <h3>Test 1: API JPA Auto-générée (Spring Data REST)</h3>
+            <p>Test de l'endpoint <code>/api/categories</code> généré automatiquement par Spring Data REST</p>
+            <button onclick="testJpaApi()">🧪 Tester GET /api/categories</button>
+            <div class="result" id="result1" style="display: none;"></div>
+        </div>
+
+        <!-- Test 2: API REST Simple -->
+        <div class="test-card">
+            <h3>Test 2: API REST Personnalisée</h3>
+            <p>Test de l'endpoint personnalisé <code>/api/simple/combien</code></p>
+            <button onclick="testSimpleApi()">🧪 Tester GET /api/simple/combien</button>
+            <div class="result" id="result2" style="display: none;"></div>
+        </div>
+
+        <!-- Test 3: API Stats -->
+        <div class="test-card">
+            <h3>Test 3: API Statistiques</h3>
+            <p>Test de l'endpoint <code>/api/stats/unitesCommandeesPourCategorie/1</code></p>
+            <button onclick="testStatsApi()">🧪 Tester GET /api/stats/...</button>
+            <div class="result" id="result3" style="display: none;"></div>
+        </div>
+
+        <!-- Test 4: API Upload -->
+        <div class="test-card">
+            <h3>Test 4: API Upload Image</h3>
+            <p>Test de l'endpoint <code>/api/upload/1</code> (GET)</p>
+            <button onclick="testUploadApi()">🧪 Tester GET /api/upload/1</button>
+            <div class="result" id="result4" style="display: none;"></div>
+        </div>
+
+        <!-- Test 5: Requête avec credentials -->
+        <div class="test-card">
+            <h3>Test 5: Requête avec Credentials</h3>
+            <p>Test avec credentials (cookies) activés</p>
+            <button onclick="testWithCredentials()">🧪 Tester avec credentials</button>
+            <div class="result" id="result5" style="display: none;"></div>
+        </div>
+
+        <!-- Test 6: Requête POST -->
+        <div class="test-card">
+            <h3>Test 6: Requête POST (méthode modifiante)</h3>
+            <p>Test d'une requête POST pour vérifier CORS sur les méthodes de modification</p>
+            <button onclick="testPostRequest()">🧪 Tester POST /api/categories</button>
+            <div class="result" id="result6" style="display: none;"></div>
+        </div>
+
+        <!-- Résumé des headers CORS -->
+        <div class="info">
+            <h4>📋 Headers CORS attendus dans les réponses</h4>
+            <div class="headers-display">
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+Access-Control-Allow-Headers: *
+Access-Control-Expose-Headers: *
+Access-Control-Max-Age: 3600
+            </div>
+        </div>
+    </div>
+
+    <script>
+            // Constante pour l'URL de l'API
+            const API_BASE_URL = "https://springajax.herokuapp.com";
+
+            // Fonction utilitaire pour afficher les résultats
+            function displayResult(elementId, status, message, data, headers) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.style.display = 'block';
+
+            let html = `<div class="${status === 'success' ? 'success' : 'error'}">`;
+            html += `<strong>${status === 'success' ? '✅' : '❌'} ${message}</strong>`;
+
+            if (headers) {
+                html += '<div class="headers-display" style="margin-top: 10px;">';
+                html += '<strong>Headers CORS reçus:</strong><br>';
+                for (const [key, value] of headers.entries()) {
+                    if (key.toLowerCase().startsWith('access-control')) {
+                        html += `${key}: ${value}<br>`;
+                    }
+                }
+                html += '</div>';
+            }
+
+            if (data) {
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            }
+            html += '</div>';
+
+            resultDiv.innerHTML = html;
+        }
+
+            // Test 1: API JPA
+            async function testJpaApi() {
+                const resultDiv = document.getElementById('result1');
+                resultDiv.innerHTML = '<p>Chargement... <span class="loading"></span></p>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/categories`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Origin': window.location.origin
+                        }
+                    });
+
+                    const data = await response.json();
+                    displayResult('result1', 'success',
+                        `Succès! Status: ${response.status}`,
+                        data._embedded ? data._embedded.categories.slice(0, 2) : data,
+                        response.headers
+                    );
+                } catch (error) {
+                    displayResult('result1', 'error',
+                        `Erreur CORS: ${error.message}`,
+                        null, null
+                    );
+                }
+            }
+
+            // Test 2: API Simple
+            async function testSimpleApi() {
+                const resultDiv = document.getElementById('result2');
+                resultDiv.innerHTML = '<p>Chargement... <span class="loading"></span></p>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/simple/combien`, {
+                        method: 'GET',
+                        headers: {
+                            'Origin': window.location.origin
+                        }
+                    });
+
+                    const data = await response.text();
+                    displayResult('result2', 'success',
+                        `Succès! Status: ${response.status}`,
+                        { response: data },
+                        response.headers
+                    );
+                } catch (error) {
+                    displayResult('result2', 'error',
+                        `Erreur CORS: ${error.message}`,
+                        null, null
+                    );
+                }
+            }
+
+            // Test 3: API Stats
+            async function testStatsApi() {
+                const resultDiv = document.getElementById('result3');
+                resultDiv.innerHTML = '<p>Chargement... <span class="loading"></span></p>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/stats/unitesCommandeesPourCategorie/1`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Origin': window.location.origin
+                        }
+                    });
+
+                    const data = await response.json();
+                    displayResult('result3', 'success',
+                        `Succès! Status: ${response.status}`,
+                        data.slice(0, 3),
+                        response.headers
+                    );
+                } catch (error) {
+                    displayResult('result3', 'error',
+                        `Erreur CORS: ${error.message}`,
+                        null, null
+                    );
+                }
+            }
+
+            // Test 4: API Upload
+            async function testUploadApi() {
+                const resultDiv = document.getElementById('result4');
+                resultDiv.innerHTML = '<p>Chargement... <span class="loading"></span></p>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/upload/1`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Origin': window.location.origin
+                        }
+                    });
+
+                    const data = await response.json();
+                    displayResult('result4', 'success',
+                        `Succès! Status: ${response.status}`,
+                        data,
+                        response.headers
+                    );
+                } catch (error) {
+                    displayResult('result4', 'error',
+                        `Erreur CORS: ${error.message}`,
+                        null, null
+                    );
+                }
+            }
+
+            // Test 5: Avec credentials
+            async function testWithCredentials() {
+                const resultDiv = document.getElementById('result5');
+                resultDiv.innerHTML = '<p>Chargement... <span class="loading"></span></p>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/categories`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Origin': window.location.origin
+                        },
+                        credentials: 'include' // Important: envoyer les cookies
+                    });
+
+                    const data = await response.json();
+                    displayResult('result5', 'success',
+                        `Succès avec credentials! Status: ${response.status}`,
+                        { message: 'Requête avec credentials réussie', categoriesCount: data._embedded?.categories.length || 0 },
+                        response.headers
+                    );
+                } catch (error) {
+                    displayResult('result5', 'error',
+                        `Erreur CORS avec credentials: ${error.message}`,
+                        null, null
+                    );
+                }
+            }
+
+            // Test 6: Requête POST
+            async function testPostRequest() {
+                const resultDiv = document.getElementById('result6');
+                resultDiv.innerHTML = '<p>Envoi de la requête POST... <span class="loading"></span></p>';
+                resultDiv.style.display = 'block';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/categories`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Origin': window.location.origin
+                        },
+                        body: JSON.stringify({
+                            libelle: 'Test CORS',
+                            description: 'Catégorie de test pour CORS'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        displayResult('result6', 'success',
+                            `Succès POST! Status: ${response.status}`,
+                            data,
+                            response.headers
+                        );
+                    } else {
+                        const error = await response.text();
+                        displayResult('result6', 'error',
+                            `Erreur serveur: ${response.status}`,
+                            { error: error },
+                            response.headers
+                        );
+                    }
+                } catch (error) {
+                    displayResult('result6', 'error',
+                        `Erreur CORS sur POST: ${error.message}`,
+                        null, null
+                    );
+                }
+            }
+
+            // Log au chargement
+            console.log('🌐 Page de test CORS chargée');
+            console.log('Origin:', window.location.origin);
+            console.log('Pour tester un vrai scénario cross-origin, ouvrez cette page depuis un autre domaine ou port.');
+
+            // Afficher l'origine actuelle
+            document.getElementById('current-origin').textContent = window.location.origin;
+            // Afficher l'adresse de l'API
+            document.getElementById('current-destination').textContent = API_BASE_URL;
+    </script>
+</body>
+</html>

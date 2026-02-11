@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Ajax avec XHR</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<script>
+			function xhrCallback() {
+				var message;
+				// cf. https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
+				if (this.readyState === 4) { // La requête est terminée
+					if (this.status === 200) { // Code de retour OK
+						message = this.responseText;
+					} else {
+						message = "Erreur, status : " + this.status + ", message : " + this.statusText;
+					}
+					document.getElementById("demo").innerHTML = message;
+					// On réactive le bouton
+					document.getElementById("bouton").disabled = false;
+				}
+			}
+
+			function doRequest() {
+				// Attention à la compatibilité avec les vieux navigateurs
+				var xhr = new XMLHttpRequest();
+                                // Définition du "callback"
+				xhr.onreadystatechange = xhrCallback;
+				// On appelle le contrôleur
+				xhr.open("GET", "api/simple/wait", true);
+				xhr.send();
+				// On désactive le bouton pour éviter de cliquer plusieurs fois quand la requête est en cours
+				document.getElementById("bouton").disabled = true;
+				document.getElementById("demo").innerHTML = "Requête en cours...";
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<a href="index.html" class="back-link">← Retour à l'accueil</a>
+			<h1>AJAX avec XHR (requête longue)</h1>
+		<button id="bouton" type="button" onclick="doRequest()">Exécuter la requête AJAX</button><br>
+		<textarea id="demo" rows="10" cols="50"></textarea>
+		<hr>
+		<a href="./">Retour au menu</a>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ajax avec l'API fetch et Mustache</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+   <!-- On charge le moteur de template mustache https://mustache.github.io/ -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+
+    <script>
+        // Fonction qui traite les résultats de la requête
+        function showResult(resultJson) {
+            // Le code source du template est dans la page
+            var template = document.getElementById("categoriesTemplate").innerHTML;
+            // On combine le template avec le résultat de la requête
+            var generatedHtml = Mustache.render(template, resultJson);
+            // On affiche le résultat dans la page
+            document.getElementById("tableCategories").innerHTML = generatedHtml;            
+        }
+
+        // Fonction qui traite les erreurs de la requête
+        function showError(error) {
+            document.getElementById.innerHTML = "Erreur: " + error;
+        }
+
+        // Fonction qui fait l'appel AJAX
+        function doRequest() {
+            fetch("api/categories", {mode: 'cors'})
+                .then(response => response.json())
+                .then(json => showResult(json))
+                .catch(error => showError(error));
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>Ajax avec l'API fetch et Mustache</h1>
+        <button onclick="doRequest()">Exécuter la requête AJAX</button><br>
+
+    <div id="tableCategories">...Le résultat va apparaître ici...</div>
+    <hr>
+    <a href='api/categories' target="_blank">Voir les données brutes (JSON)</a><br />
+    Le HTML est généré par le <a href='https://github.com/samskivert/jmustache' target="_blank">moteur de template
+        JMustache</a>
+    <hr>
+
+    <a href="/">Retour au menu</a>
+
+    <!-- Le template Mustache qui sert à formatter la liste des catégories -->
+    <script id="categoriesTemplate" type="text/template">
+            <h2>Liste des catégories ({{_embedded.categories.length}} / {{page.totalElements}})</h2>
+            <TABLE>
+            {{! Un commentaire Mustache }}
+            <TR><TH>Code</TH><TH>Libelle</TH><TH>Description</TH></TR>
+            {{! Pour chaque categorie dans le tableau 'content' }}
+            {{#_embedded.categories}}
+            {{! Une ligne dans la table }}
+            <TR><TD>{{code}}</TD><TD>{{libelle}}</TD><TD>{{description}}</TD></TR>
+            {{/_embedded.categories}}
+            </TABLE>
+        </script>
+    </div>
+</body>
+
+</html>

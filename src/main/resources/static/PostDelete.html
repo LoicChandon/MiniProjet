@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ajax avec l'API fetch et Mustache</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+    <!-- On charge le moteur de template mustache https://mustache.github.io/ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
+
+
+    <script>
+        var formulaire, boutonAjouter, tableCategories, message, template;
+        // Exécuté à la fin du chargement de la page
+        window.onload = function () {
+            formulaire = document.getElementById("formulaire");
+            boutonAjouter = document.getElementById("boutonAjouter");
+            tableCategories = document.getElementById("tableCategories");
+            message = document.getElementById("message");
+            template = document.getElementById("categoriesTemplate").innerHTML;
+            boutonAjouter.addEventListener("click", ajouteCategorie);
+            chargeCategories();
+        };
+
+        // Transforme les données saisies dans le formulaire en format JSON
+        function serializeFormToJSON(form) {
+            let formData = new FormData(form);
+            let obj = {};
+            for (let key of formData.keys()) {
+                obj[key] = formData.get(key);
+            }
+            return JSON.stringify(obj);
+        }
+
+        // Afficher la liste des catégories avec un template
+        function afficheTableCategories(resultJson) {
+            afficheMessage("");
+            // On combine le template avec le résultat de la requête
+            var processedTemplate = Mustache.to_html(template, resultJson);
+            // On affiche le résultat dans la page
+            tableCategories.innerHTML = processedTemplate;
+        }
+        // fonction qui détecte les erreurs dans la réponse reçue
+        function handleErrors(response) {
+            if (!response.ok) {
+                throw Error(response.statusText);
+            }
+            return response;
+        }
+
+        // Un appel AJAX GET pour chercher la liste des catégories
+        function chargeCategories() {
+            fetch("api/categories")
+                .then(handleErrors)
+                .then(response => response.json())
+                .then(afficheTableCategories)
+                .catch(error => afficheMessage(error.message));
+        }
+
+        // Afficher un message d'erreur
+        function afficheMessage(texte) {
+            message.innerHTML = texte;
+        }
+
+        // Enregistrer une nouvelle catégorie
+        function ajouteCategorie() {
+            // On fait un appel POST pour enregistrer une nouvelle catégorie
+            // à partir des données saisies dans le formulaire
+            fetch("api/categories",
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: serializeFormToJSON(formulaire)
+                })
+                .then(response => {
+                    // On vérifie le code de retour de la requête
+                    switch (response.status) {
+                        case 201: // Created: ça s'est bien passé
+                            // On recharge la liste des catégories
+                            chargeCategories();
+                            break;
+                        case 409: // Conflict: doublon dans les noms
+                            afficheMessage("Cette catégorie existe déjà");
+                            break;
+                    }
+                })
+                .catch(afficheMessage);
+        }
+
+        // Supprimer une catégorie
+        function supprime(url) {
+            fetch(url,
+                {
+                    method: 'delete',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    // On vérifie le code de retour de la requête
+                    switch (response.status) {
+                        case 200: // ça s'est bien passé
+                        case 404: // Not found: ça s'est bien passé aussi (quelqu'un d'autre l'a peut-être supprimée)
+                            // On recharge la liste des catégories
+                            chargeCategories();
+                            break;
+                        case 409: // Violation de contrainte d'intégrité référentielle
+                            afficheMessage("Impossible de supprimer cette catégorie car elle est référencée par des produits");
+                            break;
+                    }
+                })
+                .catch(afficheMessage);
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>Exemple POST et DELETE</h1>
+        <!-- Le formulaire de saisie -->
+        <form id="formulaire">
+        <label for="libelle">Libellé</label>
+        <input name="libelle" placeholder="Libellé de la catégorie"><br>
+        <label for="description">Description</label>
+        <textarea name="description" placeholder="Description de la catégorie"></textarea><br>
+        <button type="button" id="boutonAjouter">Ajouter</button>
+    </form>
+    <!-- Les messages d'erreur s'affichent ici -->
+    <div id="message"></div>
+    <!-- La table des catégories -->
+    <div id="tableCategories"></div>
+    <hr>
+
+    <a href="/">Retour au menu</a>
+
+    <!-- Le template Mustache qui sert à formatter la liste des catégories -->
+    <script id="categoriesTemplate" type="text/template">
+        <h2>Liste des catégories ({{_embedded.categories.length}} / {{page.totalElements}})</h2>
+        <TABLE>
+        {{! Un commentaire Mustache }}
+        <TR><TH>Code</TH><TH>Libelle</TH><TH>Description</TH><TH>Action</TH></TR>
+        {{! Pour chaque categorie dans le tableau 'categories' }}
+        {{#_embedded.categories}}
+        {{! Une ligne dans la table }}
+        <TR>
+            <TD>{{code}}</TD><TD>{{libelle}}</TD><TD>{{description}}</TD>
+            <TD><button type="button" onclick="supprime('{{_links.self.href}}')">Supprimer</button></TD>
+        </TR>
+        {{/_embedded.categories}}
+        </TABLE>
+    </script>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Ajax avec JQuery</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<!-- On charge la bibliothèque JQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script>
+			$(document).ready(// Exécuté à la fin du chargement de la page
+				function () {
+					$("#waiting").hide();
+					// Quand on clique sur le bouton doAjax, on exécute la fonction doRequest
+					$("#doAjax").click(doRequest);
+				}
+			);
+
+			function doRequest() {
+				$.ajax({
+					url: "api/simple/wait", // On appelle la méthode du contrôleur
+					data: {timeout: 8}, // On passe le timeout en paramètres
+					success: showResult,
+					error: showError
+				});
+				$("#demo").hide();
+				$("#waiting").show();
+				// On désactive le bouton pour éviter de faire plusieurs appels en même temps
+				$("#doAjax").prop("disabled", true);
+
+			}
+
+			// Fonction qui traite les résultats de la requête
+			function showResult(result) {
+				$("#demo").show();
+				$("#waiting").hide();
+				// On affiche le résultat
+				$("#demo").html(result);
+				// On réactive le bouton
+				$("#doAjax").prop("disabled", false);
+			}
+
+			// Fonction qui traite les erreurs de la requête
+			function showError(xhr, status, message) {
+				$("#demo").html("Erreur: " + status + " : " + message);
+			}
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<a href="index.html" class="back-link">← Retour à l'accueil</a>
+			<h1>AJAX / JQuery / Requête longue</h1>
+		<button id="doAjax">Exécuter la requête AJAX</button><br>
+		<img id="waiting" src="images/ajax-loader2.gif" alt="Waiting...">
+		<textarea id="demo" rows="3" cols="40">Le résultat apparaîtra ici</textarea>
+		<hr>
+		<a href="./">Retour au menu</a>
+	</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Négociation de contenu</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+
+    <script>
+        var xmlButton, jsonButton, resultat;
+        window.onload = function () {
+            xmlButton = document.getElementById("doAjaxXML");
+            jsonButton = document.getElementById("doAjaxJSON");
+            resultat = document.getElementById("resultat");
+            xmlButton.addEventListener("click", doXMLRequest);
+            jsonButton.addEventListener("click", doJSONRequest);
+        };
+
+        // Fonction qui affiche les erreurs de la requête
+        function showError(error) {
+            resultat.innerHTML = "Erreur: " + error.message;
+        }
+
+        // fonction qui détecte les erreurs dans la réponse reçue
+        function handleErrors(response) {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response;
+        }
+
+        // Faire une requête en demandant du XML
+        function doXMLRequest() {
+            let options = {
+                headers: {
+                    'Accept': 'application/xml'
+                }
+            };
+            fetch("/api/stats/unitesCommandeesPourCategorie/1", options)
+                .then(handleErrors)
+                .then(response => response.text())
+                .then(showXMLResult)
+                .catch(showError);
+        }
+
+        // Faire une requête en demandant du JSON (par défaut)
+        function doJSONRequest() {
+            fetch("/api/stats/unitesCommandeesPourCategorie/1")
+                .then(handleErrors)
+                .then(response => response.json())
+                .then(showJSONResult)
+                .catch(showError);
+        }
+
+        // Fonction qui affiche les résultats de la requête XML
+        function showXMLResult(resultXML) {
+            resultat.innerHTML = resultXML;
+        }
+
+        // Fonction qui affiche les résultats de la requête JSON
+        function showJSONResult(resultJSON) {
+            // On reçoit un objet javascript, on le transforme en String
+            resultat.innerHTML = JSON.stringify(resultJSON);
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>Exemple de négociation de contenu</h1>
+    <button id="doAjaxXML">Exécuter la requête AJAX (XML)</button><br>
+    <button id="doAjaxJSON">Exécuter la requête AJAX (JSON)</button><br>
+    <textarea id="resultat" rows="15" cols="120">
+			...Le résultat va apparaître ici...
+	</textarea>
+
+    <hr>
+    <a href="/">Retour au menu</a>
+    </div>
+</body>
+
+</html>

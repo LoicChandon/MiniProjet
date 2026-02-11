@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ajax avec l'API fetch</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+
+    <script>
+        // Fonction qui traite les résultats de la requête
+        function showResult(resultJson) {
+            alert("Il y a " + resultJson.page.totalElements + " catégories");
+            console.log(resultJson);
+        }
+
+        // Fonction qui traite les erreurs de la requête
+        function showError(error) {
+            console.error(error);
+        }
+
+        // Fonction qui fait l'appel AJAX
+        function doRequest() {
+            fetch("api/categories")
+                .then(response => response.json())
+                .then(json => showResult(json))
+                .catch(error => showError(error));
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>Ajax avec l'API fetch</h1>
+        <button onclick="doRequest()">Exécuter la requête AJAX</button><br>
+
+    <div>Ouvrez la console pour voir le résultat</div>
+    <hr>
+    <a href='api/categories' target="_blank">Voir les données brutes (JSON)</a><br />
+
+    <a href="/">Retour au menu</a>
+    </div>
+</body>
+
+</html>

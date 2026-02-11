@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Ajax avec l'API fetch et Vue.js</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+    <!-- On charge la bibliothèque Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Retour à l'accueil</a>
+    <h1>Médicaments par catégorie (Vue.js)</h1>
+    <div id="app">
+    <select v-model="selectedHref" @change="categorieChanged($event)">
+      <option value="">Choisissez une catégorie</option>
+      <option v-for="categorie in categories" :value="categorie._links.medicaments.href">
+        {{ categorie.libelle }}
+      </option>
+    </select>
+    <table>
+      <tr>
+        <th>Nom</th><th>Prix unitaire</th><th>Unités en stock</th>
+      </tr>
+      <tr v-for="medicament in medicaments">
+        <td>{{medicament.nom}}</td><td>{{medicament.prixUnitaire}}</td><td>{{medicament.unitesEnStock}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <hr />
+  <a href="api/categories" target="_blank">Voir les données brutes (JSON)</a>
+  <hr />
+
+  <a href="/">Retour au menu</a>
+
+  <script>
+    const HelloVueApp = {
+      data() {
+        return {
+          categories: [],
+          medicaments: [],
+          selectedHref: ""
+        };
+      },
+      mounted() {
+        this.chargeCategories();
+      },
+      methods: {
+        categorieChanged(event) {
+          console.log("categorieChanged");
+          this.chargeMedicaments(event.target.value);
+        },
+        chargeCategories() {
+          console.log("chargeCategories");
+          fetch("api/categories")
+            .then((response) => response.json())
+            .then((resultat) => {
+              console.log(resultat);
+              this.categories = resultat._embedded.categories;
+            })
+            .catch((error) => alert(error));
+        },
+        chargeMedicaments(hrefMedicaments) {
+          console.log("chargeMedicaments");
+          if (hrefMedicaments) {
+            fetch(hrefMedicaments)
+              .then((response) => response.json())
+              .then((resultat) => {
+                console.log(resultat);
+                this.medicaments = resultat._embedded.medicaments;
+              })
+              .catch((error) => alert(error));
+          } else {
+            this.medicaments = [];
+          }
+        },
+      },
+    };
+    Vue.createApp(HelloVueApp).mount("#app");
+  </script>
+  </div>
+</body>
+
+</html>

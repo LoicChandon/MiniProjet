@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Produits vendus par catégorie</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- On charge l'API Google -->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // cf. https://developers.google.com/chart/interactive/docs/gallery/piechart
+        google.charts.load('current', { 'packages': ['corechart'] });
+
+        // On fait l'appel AJAX dès le chargement de la page
+        google.charts.setOnLoadCallback(() => doAjax(document.getElementById("code")));
+
+        // Fait un appel AJAX pour récupérer les données à afficher
+        function doAjax(categorieSelectionnee) {
+            fetch("/api/stats/unitesCommandeesPourCategorieV2/" + categorieSelectionnee.value)
+                .then(response => response.json())
+                .then(drawPiechart)
+                .catch(showError);
+        }
+
+        // Affiche le résultat des statistiques sous forme de camembert
+        function drawPiechart(result) {
+            // On met le résultat au format attendu par google
+            // En-têtes des colonnes
+            const headers = ['Produit', 'Unités commandées'];
+            // cf. https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/unshift
+            result.unshift(headers);
+
+            const dataTable = google.visualization.arrayToDataTable(result);
+            const chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            const options = { title: 'Unités commandées par produit' };
+            chart.draw(dataTable, options);
+        }
+
+        // Fonction qui traite les erreurs de la requête
+        function showError(xhr, status, message) {
+            alert("Erreur: " + status + " : " + message);
+        }
+
+    </script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Exemple MVC + AJAX</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a th:href="@{/}" href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="starter-template">
+            <p class="lead">
+            <h3>Illustre le passage de paramètres dans un appel AJAX</h3>
+            <!--/* Un formulaire pour choisir la catégorie à afficher */-->
+            <!--/* On pourrait également faire un appel AJAX pour aller chercher la liste des catégories */-->
+            <form id="formulaireCategorie">
+                <!--/* On choisit le code de la catégorie sur laquelle doit porter la statistique */-->
+                <!--/* Chaque fois qu'on choisit un code, on fait l'appel AJAX */-->
+                <label for='code'>Catégorie de médicament</label><br>
+                <select class="selectpicker" data-style="btn-primary" id='code' name='code' onchange='doAjax(this)'>
+                    <!--/* Une option pour chaque catégorie c dans la liste 'categories' transmise par le contrôleur */-->
+                    <option th:each="c: ${categories}" th:value='${c.code}' value="1" th:text="${c.libelle}">
+                        Le libellé de la catégorie
+                    </option>
+                </select>
+                <!--/* Pas de 'submit', on fait un appel AJAX */-->
+            </form>
+            <br />
+            <a th:href="@{/api/stats/unitesCommandeesPourCategorieV2/1}" target="_blank" href="#">Résultats fournis
+                par
+                l'appel AJAX</a>
+            <!-- Le graphique apparaît ici -->
+            <div id="piechart" style="width: 1000px; height: 500px;"></div>
+            <hr />
+
+            </p>
+        </div>
+
+    </div><!-- /.container -->
+
+    </div>
+    </div>
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- Bootstrap core JavaScript
+================================================== -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

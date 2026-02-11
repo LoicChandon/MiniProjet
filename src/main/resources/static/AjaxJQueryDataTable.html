@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<head>
+	<title>Visualisation Google</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>	
+	<!-- On charge JQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- On charge l'API Google -->
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		// cf. https://developers.google.com/chart/interactive/docs/gallery/table
+		google.charts.load('current', {'packages': ['table']});
+		// On fait l'appel AJAX dès le chargement de la page
+		google.charts.setOnLoadCallback(doAjax);
+
+		function showTable(result) {
+			// On reformate le résultat dans le format attendu par google dataTable
+			var data = new google.visualization.DataTable();
+			// On décrit les colonnes
+			data.addColumn('number', 'Code');
+			data.addColumn('string', 'Libellé');
+			data.addColumn('string', 'Description');
+
+			// On reformate le résultat comme un tableau
+			var chartData = [];
+			// Pour chaque catégorie dans le tableau result.content
+			result._embedded.categories.forEach(
+				categorie =>
+				// On ajoute les attributs de la catégorie dans le tableau
+				chartData.push([parseInt(categorie.code), categorie.libelle, categorie.description])
+			);
+			data.addRows(chartData);
+
+			var table = new google.visualization.Table(document.getElementById('table_div'));
+			table.draw(data, {showRowNumber: false, width: '100%', height: '100%'});
+		}
+
+		// Afficher les ventes par client
+		function doAjax() {
+			$.ajax({
+				// On appelle l'API REST auto-générée
+				url: "api/categories",
+				dataType: "json",
+				success: showTable,
+				error: showError
+			});
+		}
+
+		// Fonction qui traite les erreurs de la requête
+		function showError(xhr, status, message) {
+			alert("Erreur: " + status + " : " + message);
+		}
+
+	</script>
+</head>
+<body>
+	<div class="container">
+		<a href="index.html" class="back-link">← Retour à l'accueil</a>
+		<h1>Exemple d'utilisation des <a href="https://developers.google.com/chart/interactive/docs/gallery/table" target="_blank">visualisations Google (table)</a></h1>
+	<!-- Le graphique apparaît ici -->
+	<div id="table_div"></div>
+	<hr>
+	<a href='api/categories' target="_blank">Voir les données brutes (JSON)</a>
+	<hr>
+	<a href="/">Retour au menu</a>
+	</div>
+</body>

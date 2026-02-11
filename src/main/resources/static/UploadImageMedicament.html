@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image Médicament - Gestion Pharmaceutique</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="number"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .medicament-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .medicament-info.show {
+            display: block;
+        }
+
+        .medicament-info h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            margin-top: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .file-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+
+        <h1>📤 Upload Image pour Médicament</h1>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="reference">Référence du médicament :</label>
+                <input
+                    type="number"
+                    id="reference"
+                    name="reference"
+                    required
+                    min="1"
+                    placeholder="Ex: 1, 2, 3..."
+                >
+                <small>Entrez la référence du médicament (numéro)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="imageFile">Fichier image :</label>
+                <input
+                    type="file"
+                    id="imageFile"
+                    name="file"
+                    accept="image/*"
+                    required
+                >
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <button type="button" id="loadMedicamentBtn">🔍 Charger les infos du médicament</button>
+            <button type="submit" id="uploadBtn">📤 Uploader l'image</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Traitement en cours...</p>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="medicament-info" id="medicamentInfo">
+            <h3>📋 Informations du médicament</h3>
+            <div id="medicamentDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const referenceInput = document.getElementById('reference');
+        const imageFileInput = document.getElementById('imageFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loadMedicamentBtn = document.getElementById('loadMedicamentBtn');
+        const messageDiv = document.getElementById('message');
+        const medicamentInfoDiv = document.getElementById('medicamentInfo');
+        const medicamentDetailsDiv = document.getElementById('medicamentDetails');
+        const loadingDiv = document.getElementById('loading');
+        const fileInfoDiv = document.getElementById('fileInfo');
+
+        // Afficher les informations du fichier sélectionné
+        imageFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfoDiv.textContent = `Fichier sélectionné: ${file.name} (${sizeMB} MB)`;
+            } else {
+                fileInfoDiv.textContent = '';
+            }
+        });
+
+        // Fonction pour afficher un message
+        function showMessage(text, isSuccess) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + (isSuccess ? 'success' : 'error') + ' show';
+
+            // Faire défiler vers le message
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Fonction pour cacher le message
+        function hideMessage() {
+            messageDiv.className = 'message';
+        }
+
+        // Fonction pour afficher/cacher le loading
+        function showLoading(show) {
+            loadingDiv.className = show ? 'loading show' : 'loading';
+            uploadBtn.disabled = show;
+            loadMedicamentBtn.disabled = show;
+        }
+
+        // Charger les informations du médicament
+        loadMedicamentBtn.addEventListener('click', async () => {
+            const reference = referenceInput.value.trim();
+
+            if (!reference) {
+                showMessage('❌ Veuillez entrer une référence de médicament', false);
+                return;
+            }
+
+            hideMessage();
+            medicamentInfoDiv.className = 'medicament-info';
+            showLoading(true);
+
+            try {
+                const response = await fetch(`/api/upload/${reference}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Erreur HTTP ${response.status}`);
+                }
+
+                if (data.success && data.medicament) {
+                    const med = data.medicament;
+                    let html = `
+                        <p><strong>Référence:</strong> ${med.reference}</p>
+                        <p><strong>Nom:</strong> ${med.nom}</p>
+                        <p><strong>Catégorie:</strong> ${med.categorie}</p>
+                        <p><strong>Prix unitaire:</strong> ${med.prixUnitaire} €</p>
+                        <p><strong>Stock:</strong> ${med.unitesEnStock} unités</p>
+                    `;
+
+                    if (med.imageURL) {
+                        html += `
+                            <p><strong>Image actuelle:</strong></p>
+                            <img src="${med.imageURL}" alt="${med.nom}" class="preview-image"
+                                 onerror="this.src='/images/no-image.png'; this.onerror=null;">
+                        `;
+                    } else {
+                        html += `<p><em>Aucune image actuellement</em></p>`;
+                    }
+
+                    medicamentDetailsDiv.innerHTML = html;
+                    medicamentInfoDiv.className = 'medicament-info show';
+                    showMessage('✅ Médicament chargé avec succès', true);
+                } else {
+                    throw new Error(data.message || 'Impossible de charger le médicament');
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du médicament:', error);
+                showMessage(`❌ Erreur: ${error.message}`, false);
+                medicamentInfoDiv.className = 'medicament-info';
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Soumettre le formulaire d'upload
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const reference = referenceInput.value.trim();
+            const file = imageFileInput.files[0];
+
+            // Validation
+            if (!reference) {
+                showMessage('❌ Veuillez entrer une référence de médicament', false);
+                return;
+            }
+
+            if (!file) {
+                showMessage('❌ Veuillez sélectionner une image', false);
+                return;
+            }
+
+            // Vérifier le type de fichier
+            if (!file.type.startsWith('image/')) {
+                showMessage('❌ Le fichier doit être une image (JPEG, PNG, GIF, etc.)', false);
+                return;
+            }
+
+            // Vérifier la taille (max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5 MB
+            if (file.size > maxSize) {
+                showMessage('❌ L\'image est trop volumineuse (max 5 MB)', false);
+                return;
+            }
+
+            hideMessage();
+            showLoading(true);
+
+            // Créer FormData
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`/api/upload/${reference}/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Erreur HTTP ${response.status}`);
+                }
+
+                if (data.success) {
+                    showMessage(`✅ ${data.message}`, true);
+
+                    // Afficher les informations du médicament mis à jour
+                    if (data.medicament) {
+                        const med = data.medicament;
+                        let html = `
+                            <p><strong>Référence:</strong> ${med.reference}</p>
+                            <p><strong>Nom:</strong> ${med.nom}</p>
+                            <p><strong>Nouvelle image:</strong></p>
+                            <img src="${med.imageURL}" alt="${med.nom}" class="preview-image"
+                                 onerror="this.src='/images/no-image.png'; this.onerror=null;">
+                        `;
+                        medicamentDetailsDiv.innerHTML = html;
+                        medicamentInfoDiv.className = 'medicament-info show';
+                    }
+
+                    // Réinitialiser le champ fichier
+                    imageFileInput.value = '';
+                    fileInfoDiv.textContent = '';
+                } else {
+                    throw new Error(data.message || 'Échec de l\'upload');
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'upload:', error);
+                showMessage(`❌ Erreur: ${error.message}`, false);
+            } finally {
+                showLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ajax avec l'API fetch et Vue.js</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+    <!-- On charge la bibliothèque Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <a href="index.html" class="back-link">← Retour à l'accueil</a>
+      <h1>Ajax avec l'API fetch et Vue.js</h1>
+      <div id="app">
+      <button v-on:click="doAjax">Exécuter la requête AJAX</button><br />
+      <div v-if="! categories">...Le résultat va apparaître ici...</div>
+      <div v-if="categories">
+        <table>
+        <caption>Liste des catégories ({{categories.length}} / {{page.totalElements}})</caption>
+          <tr>
+            <th>Code</th>
+            <th>Libelle</th>
+            <th>Description</th>
+          </tr>
+          <tr v-for="categorie in categories">
+            <td>{{categorie.code}}</td>
+            <td>{{categorie.libelle}}</td>
+            <td>{{categorie.description}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <hr />
+    <a href="api/categories" target="_blank">Voir les données brutes (JSON)</a>
+    <hr />
+
+    <a href="/">Retour au menu</a>
+
+    <script>
+      const HelloVueApp = {
+        data() {
+          return {
+            categories: undefined,
+            page: undefined,
+          };
+        },
+        mounted() {
+          console.log("Mounted");
+        },
+        methods: {
+          doAjax() {
+            fetch("api/categories")
+              .then((response) => response.json())
+              .then((json) => {
+                console.log(json);
+                this.categories = json._embedded.categories;
+                this.page = json.page;
+              })
+              .catch((error) => alert(error));
+          },
+        },
+      };
+      Vue.createApp(HelloVueApp).mount("#app");
+    </script>
+    </div>
+  </body>
+</html>

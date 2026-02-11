@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload Simple</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .test-section {
+            border: 2px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>🧪 Tests API Upload Image</h1>
+
+    <div class="test-section">
+        <h2>Test 1: Récupérer un médicament</h2>
+        <p>Récupère les informations d'un médicament pour vérifier qu'il existe.</p>
+        <label>Référence: <input type="number" id="ref1" value="1"></label>
+        <button onclick="testGetMedicament()">▶️ Tester</button>
+        <div class="result" id="result1"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Upload image (simulation)</h2>
+        <p>Simule un upload d'image. Notez que cette simulation créera une vraie requête HTTP.</p>
+        <label>Référence: <input type="number" id="ref2" value="1"></label>
+        <input type="file" id="fileInput" accept="image/*">
+        <button onclick="testUploadImage()">▶️ Uploader</button>
+        <div class="result" id="result2"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Cas d'erreur - Médicament inexistant</h2>
+        <p>Teste le comportement avec un médicament qui n'existe pas.</p>
+        <label>Référence: <input type="number" id="ref3" value="999999"></label>
+        <button onclick="testNotFound()">▶️ Tester</button>
+        <div class="result" id="result3"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Cas d'erreur - Fichier non-image</h2>
+        <p>Teste le comportement avec un fichier qui n'est pas une image.</p>
+        <label>Référence: <input type="number" id="ref4" value="1"></label>
+        <input type="file" id="fileInput2">
+        <button onclick="testInvalidFile()">▶️ Tester</button>
+        <div class="result" id="result4"></div>
+    </div>
+
+    <script>
+        // Test 1: GET médicament
+        async function testGetMedicament() {
+            const ref = document.getElementById('ref1').value;
+            const resultDiv = document.getElementById('result1');
+            resultDiv.textContent = 'Chargement...';
+
+            try {
+                const response = await fetch(`/api/upload/${ref}`);
+                const data = await response.json();
+
+                resultDiv.textContent =
+                    `Status: ${response.status} ${response.statusText}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+
+                if (data.success && data.medicament.imageURL) {
+                    resultDiv.innerHTML +=
+                        `\n\n<img src="${data.medicament.imageURL}" style="max-width: 200px; border: 2px solid #3498db; margin-top: 10px;">`;
+                }
+            } catch (error) {
+                resultDiv.textContent = `Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 2: POST upload image
+        async function testUploadImage() {
+            const ref = document.getElementById('ref2').value;
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result2');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                resultDiv.textContent = '❌ Veuillez sélectionner un fichier';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            resultDiv.textContent = `Uploading ${file.name} (${file.type})...`;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`/api/upload/${ref}/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                resultDiv.textContent =
+                    `Status: ${response.status} ${response.statusText}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+
+                if (data.success && data.imageUrl) {
+                        // Afficher l'image uploadée après un court délai pour s'assurer qu'elle a été enregistrée
+                        setTimeout(() => {
+                                resultDiv.innerHTML +=
+                                `\n\n<img src="${data.imageUrl}" alt="Uploaded medication photo showing the newly uploaded image for medication reference ${ref}" style="max-width: 200px; border: 2px solid #27ae60; margin-top: 10px;">`;
+                        }, 1000);
+                }
+            } catch (error) {
+                resultDiv.textContent = `Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 3: Médicament inexistant
+        async function testNotFound() {
+            const ref = document.getElementById('ref3').value;
+            const resultDiv = document.getElementById('result3');
+            resultDiv.textContent = 'Test en cours...';
+
+            try {
+                const response = await fetch(`/api/upload/${ref}`);
+                const data = await response.json();
+
+                resultDiv.textContent =
+                    `Status: ${response.status} ${response.statusText}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}\n\n` +
+                    `✅ Le serveur gère correctement les médicaments inexistants`;
+            } catch (error) {
+                resultDiv.textContent = `Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 4: Fichier invalide
+        async function testInvalidFile() {
+            const ref = document.getElementById('ref4').value;
+            const fileInput = document.getElementById('fileInput2');
+            const resultDiv = document.getElementById('result4');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                resultDiv.textContent = '❌ Veuillez sélectionner un fichier (de préférence non-image comme .txt, .pdf)';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            resultDiv.textContent = `Test avec ${file.name} (${file.type})...`;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`/api/upload/${ref}/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                resultDiv.textContent =
+                    `Status: ${response.status} ${response.statusText}\n\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}\n\n` +
+                    (response.status === 400 ?
+                        `✅ Le serveur rejette correctement les fichiers non-image` :
+                        `⚠️ Le serveur devrait rejeter ce type de fichier`);
+            } catch (error) {
+                resultDiv.textContent = `Erreur: ${error.message}`;
+            }
+        }
+
+        // Message d'aide au démarrage
+        console.log('🧪 Tests API Upload Image');
+        console.log('Pour tester manuellement avec curl:');
+        console.log('curl -X GET "http://localhost:8989/api/upload/1"');
+        console.log('curl -X POST "http://localhost:8989/api/upload/1/image" -F "file=@image.jpg"');
+    </script>
+    </div>
+</body>
+</html>
