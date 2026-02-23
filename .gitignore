@@ -32,3 +32,6 @@ build/
 .vscode/
 
 .DS_Store
+
+### Secrets ###
+.env
