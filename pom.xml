@@ -131,6 +131,12 @@
             <version>3.2.6</version>
         </dependency>
         <dependency>
+            <!-- SendGrid SDK pour l'envoi d'emails via API HTTP (pas de SMTP) -->
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.10.3</version>
+        </dependency>
+        <dependency>
             <!-- Pour ModelMapper...  -->
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

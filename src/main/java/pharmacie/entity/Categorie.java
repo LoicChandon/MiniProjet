@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -49,7 +50,8 @@ public class Categorie {
 	private List<Medicament> medicaments = new LinkedList<>();
 
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "categories")
-    @ToString.Exclude
-    private List<Fournisseur> fournisseurs = new ArrayList<>();
+	@ManyToMany(mappedBy = "categories")
+	@ToString.Exclude
+	@JsonIgnoreProperties({"categories"})
+	private List<Fournisseur> fournisseurs = new ArrayList<>();
 }
