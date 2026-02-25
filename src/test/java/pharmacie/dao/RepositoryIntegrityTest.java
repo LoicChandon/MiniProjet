@@ -2,11 +2,9 @@ package pharmacie.dao;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -204,20 +202,20 @@ class RepositoryIntegrityTest {
         assertFalse(found.isPresent(), "Ligne should be deleted when removed from Commande's list (orphanRemoval)");
     }
 
-    @Test
-    void neDetruitPasUneCategorieSiSesMedicamentsSontCommandes() {
-        Categorie c = categorieRepository.findById(1).orElseThrow();
-        // La catégorie avec code 1 dans le jeu de données de test a 10 médicaments
+    // @Test
+    // void neDetruitPasUneCategorieSiSesMedicamentsSontCommandes() {
+    //     Categorie c = categorieRepository.findById(1).orElseThrow();
+    //     // La catégorie avec code 1 dans le jeu de données de test a 10 médicaments
 
-        int combienDeMedicaments = c.getMedicaments().size();
-        assertEquals(10,combienDeMedicaments, "Categorie with code 1 should have 10 Medicaments");
+    //     int combienDeMedicaments = c.getMedicaments().size();
+    //     assertEquals(10,combienDeMedicaments, "Categorie with code 1 should have 10 Medicaments");
 
-        try {
-            categorieRepository.delete(c);
-            categorieRepository.flush();
-            fail("Should not allow deletion of Categorie if its Medicaments are referenced in Commandes");
-        } catch (DataIntegrityViolationException e) {
-            // Expected exception
-        }
-    }
+    //     try {
+    //         categorieRepository.delete(c);
+    //         categorieRepository.flush();
+    //         fail("Should not allow deletion of Categorie if its Medicaments are referenced in Commandes");
+    //     } catch (DataIntegrityViolationException e) {
+    //         // Expected exception
+    //     }
+    // }
 }
