@@ -1,10 +1,9 @@
 package pharmacie.dao;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import pharmacie.entity.Dispensaire;
-
-import org.springframework.data.jpa.repository.JpaRepository;
 
 // This will be AUTO IMPLEMENTED by Spring into a Bean called DispensaireRepository
 // CRUD refers Create, Read, Update, Delete
@@ -21,7 +20,6 @@ public interface DispensaireRepository extends JpaRepository<Dispensaire, String
         SELECT COALESCE(SUM(l.quantite), 0)
         FROM Ligne l
         WHERE l.commande.dispensaire.code = :dispensaireCode
-        AND l.commande.envoyeele IS NOT NULL
     """)
     int nombreArticlesCommandesPar(String dispensaireCode);
 }
