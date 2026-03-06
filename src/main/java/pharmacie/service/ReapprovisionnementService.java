@@ -175,4 +175,59 @@ public class ReapprovisionnementService {
             throw new RuntimeException("Erreur lors de l'envoi du mail à " + fournisseur.getAdresseElectronique(), e);
         }
     }
+
+    /**
+     * Diagnostic : vérifie la clé SendGrid et liste les médicaments à réapprovisionner.
+     */
+    public Map<String, Object> diagnostic() {
+        Map<String, Object> result = new LinkedHashMap<>();
+
+        // 1. Vérifier la clé API
+        boolean apiKeyPresente = sendGridApiKey != null && !sendGridApiKey.isBlank() && !"MISSING".equals(sendGridApiKey);
+        result.put("sendgrid_api_key_configuree", apiKeyPresente);
+        result.put("sendgrid_api_key_debut", apiKeyPresente ? sendGridApiKey.substring(0, Math.min(8, sendGridApiKey.length())) + "..." : "NON CONFIGURÉE");
+        result.put("from_email", fromEmail);
+
+        // 2. Tester la connexion SendGrid (appel léger)
+        if (apiKeyPresente) {
+            try {
+                SendGrid sg = new SendGrid(sendGridApiKey);
+                Request request = new Request();
+                request.setMethod(Method.GET);
+                request.setEndpoint("scopes");
+                Response response = sg.api(request);
+                result.put("sendgrid_connexion_status", response.getStatusCode());
+                result.put("sendgrid_connexion_ok", response.getStatusCode() == 200);
+                if (response.getStatusCode() != 200) {
+                    result.put("sendgrid_erreur", response.getBody());
+                }
+            } catch (IOException e) {
+                result.put("sendgrid_connexion_ok", false);
+                result.put("sendgrid_erreur", e.getMessage());
+            }
+        }
+
+        // 3. Médicaments à réapprovisionner
+        List<Medicament> medsAReappro = medicamentDao.medicamentsAReapprovisionner();
+        result.put("nb_medicaments_a_reapprovisionner", medsAReappro.size());
+        result.put("medicaments_a_reapprovisionner", medsAReappro.stream()
+                .map(m -> Map.of(
+                        "nom", m.getNom(),
+                        "stock", m.getUnitesEnStock(),
+                        "seuil", m.getNiveauDeReappro(),
+                        "categorie", m.getCategorie().getLibelle()))
+                .toList());
+
+        // 4. Fournisseurs concernés
+        List<Fournisseur> fournisseurs = fournisseurDao.findAll();
+        result.put("nb_fournisseurs", fournisseurs.size());
+        result.put("fournisseurs", fournisseurs.stream()
+                .map(f -> Map.of(
+                        "nom", f.getNom(),
+                        "email", f.getAdresseElectronique(),
+                        "nb_categories", f.getCategories().size()))
+                .toList());
+
+        return result;
+    }
 }

@@ -1,7 +1,9 @@
 package pharmacie.rest;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,5 +38,14 @@ public class ReapprovisionnementController {
     public List<MailEnvoye> notifierFournisseurs() {
         log.info("Déclenchement du réapprovisionnement");
         return reapprovisionnementService.verifierEtNotifierReapprovisionnement();
+    }
+
+    /**
+     * Endpoint de diagnostic : teste la connexion SendGrid et liste les médicaments à réapprovisionner.
+     * Accessible via GET /api/reapprovisionnement/diagnostic
+     */
+    @GetMapping(path = "diagnostic")
+    public Map<String, Object> diagnostic() {
+        return reapprovisionnementService.diagnostic();
     }
 }
