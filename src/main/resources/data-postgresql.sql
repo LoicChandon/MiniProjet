@@ -181,3 +181,20 @@ INSERT INTO LIGNE (COMMANDE_NUMERO, MEDICAMENT_REFERENCE, QUANTITE) VALUES
 (6, 6, 110), (6, 16, 65), (6, 26, 85), (6, 36, 60), (6, 91, 70),
 (7, 7, 80), (7, 17, 50), (7, 27, 95), (7, 37, 55), (7, 100, 45),
 (8, 8, 100), (8, 18, 75), (8, 28, 80), (8, 38, 70), (8, 48, 60);
+
+-- Insertion des fournisseurs
+INSERT INTO FOURNISSEUR (ID, NOM, ADRESSE_ELECTRONIQUE) VALUES
+(1, 'Sanofi Distribution', 'commandes@sanofi-distrib.fr'),
+(2, 'Bayer Pharma Europe', 'supply@bayer-pharma.de'),
+(3, 'Roche Logistics', 'orders@roche-logistics.ch'),
+(4, 'AstraZeneca Supply', 'approvisionnement@astrazeneca-supply.co.uk'),
+(5, 'Novartis Distribution', 'distribution@novartis-eu.com');
+ALTER SEQUENCE fournisseur_id_seq RESTART WITH 6;
+
+-- Association fournisseurs <-> catégories (table de jointure ManyToMany)
+INSERT INTO FOURNISSEUR_CATEGORIE (FOURNISSEUR_ID, CATEGORIE_CODE) VALUES
+(1, 1), (1, 2), (1, 3),
+(2, 3), (2, 4), (2, 5),
+(3, 6), (3, 7), (3, 8),
+(4, 1), (4, 9), (4, 10),
+(5, 2), (5, 5), (5, 7), (5, 8);

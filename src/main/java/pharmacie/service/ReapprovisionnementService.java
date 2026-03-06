@@ -176,6 +176,11 @@ public class ReapprovisionnementService {
         }
     }
 
+
+
+    //- debug -
+
+
     /**
      * Diagnostic : vérifie la clé SendGrid et liste les médicaments à réapprovisionner.
      */

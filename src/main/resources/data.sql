@@ -186,11 +186,11 @@ INSERT INTO LIGNE (COMMANDE_NUMERO, MEDICAMENT_REFERENCE, QUANTITE) VALUES
 -- Ajout 
 -- Insertion des fournisseurs
 INSERT INTO FOURNISSEUR (ID, NOM, ADRESSE_ELECTRONIQUE) VALUES
-(1, 'Pharma Distribution Sénégal', 'contact@pharmadist-sn.com'),
-(2, 'MediSupply Afrique', 'commandes@medisupply-afrique.com'),
-(3, 'LaboPharma International', 'info@labopharma-intl.com'),
-(4, 'SenMedic SA', 'ventes@senmedic.sn'),
-(5, 'AfriHealth Logistics', 'supply@afrihealth.com');
+(1, 'Sanofi Distribution', 'commandes@sanofi-distrib.fr'),
+(2, 'Bayer Pharma Europe', 'supply@bayer-pharma.de'),
+(3, 'Roche Logistics', 'orders@roche-logistics.ch'),
+(4, 'AstraZeneca Supply', 'approvisionnement@astrazeneca-supply.co.uk'),
+(5, 'Novartis Distribution', 'distribution@novartis-eu.com');
 ALTER TABLE FOURNISSEUR ALTER COLUMN ID RESTART WITH 6;
 
 -- Association fournisseurs <-> catégories (table de jointure ManyToMany)
